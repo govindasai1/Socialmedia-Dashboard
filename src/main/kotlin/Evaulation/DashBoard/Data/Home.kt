@@ -20,7 +20,8 @@ fun loginnCall(){
 }
 fun registationCall(){
     var reg=Registation()
-    if(reg==("regestered sucesfully")){
+    println(reg)
+    if(reg==("registered successfully")){
         loginnCall()
     }
 

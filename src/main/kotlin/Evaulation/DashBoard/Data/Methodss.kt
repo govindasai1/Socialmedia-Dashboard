@@ -76,38 +76,83 @@ object Methodss {
     fun followedUsers(){
         println(Lists.viwingPost)
     }
-    fun likeOrUnlikeOrComment(userName: String)= runBlocking{
+    fun likeOrUnlikeOrComment(userName: String)= runBlocking {
         followedUsers()
         println("enter post id")
-        var postId:Int= readln().toInt()
-        println("enter comment to add")
-        var comment:String? = readln()
-        var output=Lists.postList.find { it.postId==postId }
-        try{
-        output?.let {
-            var like = async {
-               if (it.status == "notliked") {
-                   it.likes = ++(it.likes)
-                   it.status = "liked"
-               } else {
-                   println("already liked\n dou you want to unlike press 1")
-                   var out= readln().toInt()
-                   if(out==1){
-                       it.status="notliked"
-                       it.likes=it.likes-1
-                   }
-               }
-           }
-            var commentt=async {
-                if (comment != null) {
-                    it.comments?.add(comment)
+        var postId: Int = readln().toInt()
+        do {
+        println("to like post press -> 1\nto comment post press -> 2\nto unlike like post press -> 1")
+        var responce = readln().toInt()
+
+            when (responce) {
+                1 -> {
+                    var output = Lists.postList.find { it.postId == postId }
+                    try {
+                        output?.let {
+                            var like = async {
+                                if (it.status == "notliked") {
+                                    it.likes = ++(it.likes)
+                                    it.status = "liked"
+
+                                } else {
+                                    println("already liked\n dou you want to unlike press 1")
+                                    var out = readln().toInt()
+                                    if (out == 1) {
+                                        it.status = "notliked"
+                                        it.likes = it.likes - 1
+                                    }
+                                }
+                            }
+                            like.await()
+
+                        }
+                    } catch (exception: Exception) {
+                        println("post not found")
+                    }
                 }
-               }
-            like.await()
-            commentt.await()
-        }}catch (exception:Exception){
-                    println("post not found")
-        }
+
+                2 -> {
+                    println("enter comment to add")
+                    var comment: String? = readln()
+                    var output = Lists.postList.find { it.postId == postId }
+                    try {
+                        output?.let {
+                            var commentt = async {
+                                if (comment != null) {
+                                    it.comments?.add(comment)
+                                }
+                            }
+                            commentt.await()
+                        }
+                    } catch (exception: Exception) {
+                        println("post not found")
+                    }
+                }
+
+                3 -> {
+                    var output = Lists.postList.find { it.postId == postId }
+                    try {
+                        output?.let {
+                            var like = async {
+                                if (it.status == "liked") {
+                                    it.likes = --(it.likes)
+                                    it.status = "notliked"
+                                } else {
+                                    println("already notliked ")
+                                }
+                            }
+                            like.await()
+                        }
+                    } catch (exception: Exception) {
+                        println("post not found")
+                    }
+                }
+
+                else -> println("nothing")
+            }
+            println("do you want to make interactions press 1 :")
+            var interaction= readln().toInt()
+        }while (interaction==1)
     }
     fun time():String {
         val current = LocalDateTime.now()
