@@ -1,4 +1,4 @@
-package Evaulation.DashBoard.Data
+package evaulation.dashBoard
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -6,21 +6,21 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object Methodss {
-    fun followUsers(userName: String,usersList: MutableList<UserInfo> = Lists.userInfo, postlst: MutableList<Post> = Lists.postList) {
+    fun followUsers(userName: String, usersList: MutableList<UserInfo> = Lists.userInfo, postlist: MutableList<Post> = Lists.postList) {
         var list1:MutableList<UserInfo> = mutableListOf()
         list1.addAll(Lists.userInfo)
         list1.removeIf { it.userName==userName}
         list1.removeAll(Lists.FollowingUsers)
         println(list1)
         println("enter user name to follow")
-        var userName: String= readln()
-        var list = usersList.filter { it.userName == userName }
+        var userName1: String= readln()
+        var list = usersList.filter { it.userName == userName1 }
         if (list.isNotEmpty()) {
             Lists.FollowingUsers.addAll(list)
-            var userId = list.let { it.get(0).userId }
-            var list2 = postlst.filter { it.userId == userId }
-            Lists.viwingPost.addAll(list2)
-            println("$userName followed")
+            var userId = list[0].userId
+            var list2 = postlist.filter { it.userId == userId }
+            Lists.viewingPost.addAll(list2)
+            println("$userName1 followed")
         } else println("user not found")
     }
 
@@ -31,52 +31,52 @@ object Methodss {
         var list = usersList.filter { it.userName == userName }
         if (list.isNotEmpty()) {
             Lists.FollowingUsers.removeAll(list)
-            var userId = list.get(0).userId
-            var list2 = Lists.viwingPost.map { it.userId == userId }
-            if (list2.get(0)) {
-                Lists.viwingPost.removeIf { it.userId == userId }
+            var userId = list[0].userId
+            var list2 = Lists.viewingPost.map { it.userId == userId }
+            if (list2[0]) {
+                Lists.viewingPost.removeIf { it.userId == userId }
                 println("$userName unfollowed")
-            } else println("$userName notfollowed")
-        } else println("useer not found")
+            } else println("$userName not followed")
+        } else println("user not found")
     }
 
-    fun creatingPost(userName: String, postlst: MutableList<Post> = Lists.postList) {
-        var userId: Int = (Lists.usersList.filter { it.userName == userName }).get(0).userId
-        var authorName = (Lists.usersList.filter { it.userName == userName }).get(0).name
-        var numberOfPosts = ((postlst.sortedByDescending { it.postId }).get(0).postId)+1//(postlst.filter { it.userId == userId }).size
+    fun creatingPost(userName: String, postlist: MutableList<Post> = Lists.postList) {
+        var userId: Int = (Lists.usersList.filter { it.userName == userName })[0].userId
+        var authorName = (Lists.usersList.filter { it.userName == userName })[0].name
+        var numberOfPosts = ((postlist.sortedByDescending { it.postId })[0].postId)+1
         if (userId != 0) {
             println("enter some content :")
             var content: String = readln()
             var time = time()
-            postlst.add(Post(userId, (numberOfPosts), authorName, content, time, 0,"notliked", mutableListOf()))
+            postlist.add(Post(userId, (numberOfPosts), authorName, content, time, 0,"notliked", mutableListOf()))
             println("post added for user $userName")
-        } else println("useer not found")
+        } else println("user not found")
     }
 
     fun basedOnLikes(likes: Int) {
-        var list = Lists.viwingPost.filter { it.likes > likes }
-        println("these are the posts that are grater than  $likes\n$list");
+        var list = Lists.viewingPost.filter { it.likes > likes }
+        println("these are the posts that are grater than  $likes\n$list")
     }
 
     fun sortOnLikes() {
-        var list = Lists.viwingPost.sortedBy { it.likes }
+        var list = Lists.viewingPost.sortedBy { it.likes }
         println(list)
     }
 
     fun sortOnTime() {
-        var list = Lists.viwingPost.sortedBy {it.timestamp}
+        var list = Lists.viewingPost.sortedBy {it.timestamp}
         println(list)
     }
 
     fun ownPosts(userName: String) {
-        var userId = (Lists.usersList.filter { it.userName == userName }).get(0).userId
+        var userId = (Lists.usersList.filter { it.userName == userName })[0].userId
         var list = Lists.postList.filter { it.userId==userId }
         println(list)
     }
     fun followedUsers(){
-        println(Lists.viwingPost)
+        println(Lists.viewingPost)
     }
-    fun likeOrUnlikeOrComment(userName: String)= runBlocking {
+    fun likeOrUnlikeOrComment()= runBlocking {
         followedUsers()
         println("enter post id")
         var postId: Int = readln().toInt()
@@ -91,7 +91,7 @@ object Methodss {
                         output?.let {
                             var like = async {
                                 if (it.status == "notliked") {
-                                    it.likes = ++(it.likes)
+                                    it.likes  += 1
                                     it.status = "liked"
 
                                 } else {
@@ -99,7 +99,7 @@ object Methodss {
                                     var out = readln().toInt()
                                     if (out == 1) {
                                         it.status = "notliked"
-                                        it.likes = it.likes - 1
+                                        it.likes -= 1
                                     }
                                 }
                             }
@@ -154,10 +154,9 @@ object Methodss {
             var interaction= readln().toInt()
         }while (interaction==1)
     }
-    fun time():String {
+    private fun time(): String {
         val current = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("HH:mm")
-        val formatted = current.format(formatter)
-        return formatted
+        return current.format(formatter)
     }
 }
